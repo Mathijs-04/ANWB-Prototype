@@ -80,17 +80,22 @@ export function avatarStack(ids, max = 4, size = 'sm') {
 
 /* ---------- Images ---------- */
 
+// Photos that have been shown before render straight away instead of fading in again.
+const shown = new Set();
+
 export function img(id, { alt = '', sizes = '100vw', w = 1200, eager = false, cls = '', attrs = '' } = {}) {
   const set = srcset(id);
-  return `<img class="${cls}" src="${esc(photo(id, w))}" ${set ? `srcset="${set}" sizes="${sizes}"` : ''} alt="${esc(alt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" data-fade ${attrs}>`;
+  const fade = shown.has(id) ? '' : `data-fade="${esc(id)}"`;
+  return `<img class="${cls}" src="${esc(photo(id, w))}" ${set ? `srcset="${set}" sizes="${sizes}"` : ''} alt="${esc(alt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" ${fade} ${attrs}>`;
 }
 
 /** Fade remote images in once loaded (also handles images already in cache). */
 export function fadeImages(root = document) {
   $$('img[data-fade]:not(.is-loaded)', root).forEach((el) => {
-    if (el.complete && el.naturalWidth) el.classList.add('is-loaded');
+    const done = () => { el.classList.add('is-loaded'); shown.add(el.dataset.fade); };
+    if (el.complete && el.naturalWidth) done();
     else {
-      el.addEventListener('load', () => el.classList.add('is-loaded'), { once: true });
+      el.addEventListener('load', done, { once: true });
       el.addEventListener('error', () => el.classList.add('is-loaded'), { once: true });
     }
   });

@@ -42,8 +42,8 @@ export function render() {
       <div class="container">
         <div class="hero__grid">
           <div>
-            <h1 class="hero__title">Samen eropuit met <em>collega’s</em></h1>
-            <p class="hero__lead">Van boswandeling tot borrel. Doe mee of organiseer zelf iets.</p>
+            <h1 class="hero__title">Samen op pad met je <em>collega’s</em></h1>
+            <p class="hero__lead">Organiseer zelf een activiteit of sluit gezellig aan. Van boswandeling tot borrel!</p>
             <div class="hero__actions">
               <button class="btn btn--primary btn--lg" type="button" data-scroll="activiteiten">Bekijk activiteiten ${icon('arrow')}</button>
               <a class="btn btn--outline btn--lg" href="#/nieuw">${icon('plus')} Organiseer</a>
@@ -52,11 +52,11 @@ export function render() {
           <div class="hero__visual">
             ${next ? `
               <a class="hero__badge" href="#/activiteit/${esc(next.id)}" data-id="${esc(next.id)}">
-                <small>Eerstvolgende</small>
+                <small>Eerstvolgende activiteit:</small>
                 <strong>${esc(next.title)}</strong>
                 <span class="arrow-link">${esc(dateLabel(next.date))}, ${esc(next.time)} ${icon('arrow')}</span>
               </a>` : ''}
-            <div class="slant">${img(IMAGES.hero[0], { alt: 'Collega’s lachen samen buiten', sizes: '(max-width: 860px) 100vw, 55vw', eager: true })}</div>
+            <div class="slant">${img(IMAGES.fietsen[0], { alt: 'Een groep fietsers op een polderweg bij zonsondergang', sizes: '(max-width: 860px) 100vw, 55vw', eager: true })}</div>
           </div>
         </div>
 
@@ -88,7 +88,7 @@ export function render() {
         <div class="section__head">
           <div>
             <h2 class="section__title">Wat staat er gepland?</h2>
-            <p class="section__sub">Kies iets uit en doe mee. Of organiseer zelf iets.</p>
+            <p class="section__sub">Schrijf je nu in of organiseer zelf een activiteit.</p>
           </div>
         </div>
 

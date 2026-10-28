@@ -9,8 +9,8 @@ import { ensureUser } from './components.js';
 
 const main = $('#main');
 const header = $('.site-header');
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const scrollPositions = new Map();
+const visited = new Set();
 
 const ROUTES = [
   { name: 'overview', pattern: /^\/?$/, view: overview, title: 'Activiteiten' },
@@ -61,40 +61,14 @@ function onRouteChange() {
   const prev = current;
   if (prev) scrollPositions.set(prev.path, scrollY);
 
-  // Shared-element morph between a card image and the detail hero image.
-  const goingToDetail = next.route.name === 'detail';
-  const comingFromDetail = prev?.route.name === 'detail';
-  const morphId = goingToDetail ? next.params.id : comingFromDetail ? prev.params.id : null;
-  if (morphId) {
-    const from = goingToDetail ? cardImage(morphId) : $('[data-hero-img]', main);
-    if (from && inViewport(from)) from.style.viewTransitionName = 'hero-img';
-  }
-
-  const update = () => {
-    current = next;
-    renderView(next);
-    const restore = !goingToDetail && next.route.name !== 'create' && scrollPositions.has(next.path) && comingFromDetail;
-    scrollTo({ top: restore ? scrollPositions.get(next.path) : 0, behavior: 'instant' });
-    if (morphId) {
-      const to = goingToDetail ? $('[data-hero-img]', main) : cardImage(morphId);
-      if (to && inViewport(to)) to.style.viewTransitionName = 'hero-img';
-    }
-  };
-
-  if (!prev || !document.startViewTransition || reducedMotion.matches) {
-    update();
-    if (prev) main.firstElementChild?.classList.add('page-enter');
-    return;
-  }
-  const transition = document.startViewTransition(update);
-  transition.finished.finally(() => $$('[style*="view-transition-name"]').forEach((el) => { el.style.viewTransitionName = ''; }));
-}
-
-const cardImage = (id) => $(`[data-id="${CSS.escape(id)}"] [data-card-img]`, main);
-
-function inViewport(el) {
-  const r = el.getBoundingClientRect();
-  return r.bottom > 0 && r.top < innerHeight && r.width > 0;
+  // Swap the page in one go: the old page is gone in the same frame the new one appears.
+  // Entry animations only play on the first visit to a page, so going back feels instant.
+  current = next;
+  renderView(next, { refresh: visited.has(next.path) });
+  visited.add(next.path);
+  const restore = prev?.route.name === 'detail' && ['overview', 'archive'].includes(next.route.name) && scrollPositions.has(next.path);
+  scrollTo({ top: restore ? scrollPositions.get(next.path) : 0, behavior: 'instant' });
+  if (prev) main.firstElementChild?.classList.add('page-enter');
 }
 
 /* ---------- Header ---------- */
